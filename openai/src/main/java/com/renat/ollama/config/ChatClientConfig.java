@@ -3,6 +3,7 @@ package com.renat.ollama.config;
 import com.renat.ollama.advisors.TokenUsageAuditAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,8 +14,15 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder chatClientBuilder) {
+        var options = OllamaChatOptions.builder()
+                .model("llama3.2")
+                .temperature(0.8);
+
         return chatClientBuilder
-                .defaultAdvisors(List.of(new SimpleLoggerAdvisor(), new TokenUsageAuditAdvisor()))
+                .defaultOptions(options)
+                .defaultAdvisors(List.of(
+                        new SimpleLoggerAdvisor(),
+                        new TokenUsageAuditAdvisor()))
                 .defaultSystem("""
                         You are an internal HR assistant. Your role is to help\s
                         employees with questions related to HR policies, such as\s

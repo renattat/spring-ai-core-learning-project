@@ -1,6 +1,8 @@
 package com.renat.ollama.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ public class PromptStuffingController {
     public String emailResponse(@RequestParam("message") String message) {
         return chatClient
                 .prompt()
+                .options(OllamaChatOptions.builder().temperature(0.7))
                 .system(systemPromptTemplate)
                 .user(message)
                 .call()
