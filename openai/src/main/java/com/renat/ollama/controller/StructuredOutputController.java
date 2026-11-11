@@ -8,6 +8,7 @@ import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.converter.MapOutputConverter;
 import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.ai.ollama.api.OllamaModel;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,6 +73,25 @@ public class StructuredOutputController {
                         .topK(40))
                 .call()
                 .entity(new MapOutputConverter());
+        return ResponseEntity.ok(countryCities);
+    }
+
+    @GetMapping("/chat-bean-list")
+    public ResponseEntity<List<CountryCities>> chatBeanList(@RequestParam("message") String message) {
+        String enhancedPrompt = message + "\n\n" +
+                "CRITICAL: Return strictly as a valid JSON array. " +
+                "Provide details for EXACTLY 3 countries MAXIMUM, and EXACTLY 2 cities per country. " +
+                "Do not add any explanations, markdown formatting, or text outside the JSON array.";
+
+        List<CountryCities> countryCities = chatClient
+                .prompt()
+                .user(enhancedPrompt)
+                .options(OllamaChatOptions.builder()
+                        .model(OllamaModel.LLAMA3_2)
+                        .temperature(0.1)
+                        .numPredict(300)
+                        .topK(40))
+                .call().entity(new ParameterizedTypeReference<List<CountryCities>>() {});
         return ResponseEntity.ok(countryCities);
     }
 }
