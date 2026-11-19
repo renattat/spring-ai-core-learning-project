@@ -1,6 +1,7 @@
 package com.renat.ollama.config;
 
 import com.renat.ollama.advisors.TokenUsageAuditAdvisor;
+import com.renat.ollama.rag.PIIMaskingDocumentPostProcessor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -50,7 +51,8 @@ public class ChatMemoryClientConfig {
                         .vectorStore(vectorStore)
                         .topK(3)
                         .similarityThreshold(0.5)
-                        .build()
-        ).build();
+                        .build())
+                .documentPostProcessors(PIIMaskingDocumentPostProcessor.builder())
+                .build();
     }
 }
