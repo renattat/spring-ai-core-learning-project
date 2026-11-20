@@ -1,9 +1,7 @@
 package com.renat.ollama.config;
 
-import com.renat.ollama.advisors.TokenUsageAuditAdvisor;
 import org.springframework.ai.chat.cache.semantic.SemanticCacheAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +14,7 @@ public class OpenChatClientConfig {
     public ChatClient chatClient(ChatClient.Builder chatClientBuilder,
                                  SemanticCacheAdvisor semanticCacheAdvisor) {
 
-        return chatClientBuilder.defaultAdvisors(List.of(new SimpleLoggerAdvisor(),
-                new TokenUsageAuditAdvisor(), semanticCacheAdvisor))
+        return chatClientBuilder.defaultAdvisors(List.of(semanticCacheAdvisor))
                 .build();
     }
 

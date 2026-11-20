@@ -1,10 +1,8 @@
 package com.renat.ollama.config;
 
-import com.renat.ollama.advisors.TokenUsageAuditAdvisor;
 import com.renat.ollama.rag.WebSearchDocumentRetriever;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
@@ -20,17 +18,13 @@ public class WebSearchRAGChatClientConfig {
     @Bean("webSearchRAGChatClient")
     public ChatClient chatClient(ChatClient.Builder chatClientBuilder,
                                  ChatMemory chatMemory, RestClient.Builder restClientBuilder) {
-
-        Advisor loggerAdvisor = new SimpleLoggerAdvisor();
-        Advisor tokenUsageAdvisor = new TokenUsageAuditAdvisor();
         Advisor memotyAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
-
         var webSearchRAGAdvisor = RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(WebSearchDocumentRetriever.builder()
                         .restClientBuilder(restClientBuilder).maxResults(5).build())
                 .build();
         return chatClientBuilder
-                .defaultAdvisors(List.of(loggerAdvisor, memotyAdvisor, tokenUsageAdvisor, webSearchRAGAdvisor))
+                .defaultAdvisors(List.of(memotyAdvisor, webSearchRAGAdvisor))
                 .build();
     }
 }

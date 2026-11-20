@@ -1,11 +1,9 @@
 package com.renat.ollama.config;
 
-import com.renat.ollama.advisors.TokenUsageAuditAdvisor;
 import com.renat.ollama.rag.PIIMaskingDocumentPostProcessor;
 import org.springframework.ai.chat.cache.semantic.SemanticCacheAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
@@ -33,12 +31,9 @@ public class ChatMemoryClientConfig {
                                  ChatMemory chatMemory,
                                  RetrievalAugmentationAdvisor retrievalAugmentationAdvisor,
                                  SemanticCacheAdvisor semanticCacheAdvisor) {
-        Advisor loggerAdvisor = new SimpleLoggerAdvisor();
-        Advisor tokenUsageAdvisor = new TokenUsageAuditAdvisor();
         Advisor memoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
-
         return chatClientBuilder
-                .defaultAdvisors(List.of(loggerAdvisor, memoryAdvisor, tokenUsageAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
+                .defaultAdvisors(List.of(memoryAdvisor, retrievalAugmentationAdvisor, semanticCacheAdvisor))
                 .build();
     }
 
