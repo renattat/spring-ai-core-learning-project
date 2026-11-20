@@ -21,14 +21,14 @@ public class HelpDeskTools {
 
     private final HelpDeskTicketService service;
 
-    @Tool(name = "createTicket", description = "Create the Support Ticket")
+    @Tool(name = "createTicket", description = "Create the Support Ticket", returnDirect = true)
     String createTicket(@ToolParam(description = "Details to create a Support ticket") TicketRequest ticketRequest,
                         ToolContext toolContext) {
         String username = (String) toolContext.getContext().get("username");
         LOGGER.info("Creating support ticket for user: {} with details: {}", username, ticketRequest);
         HelpDeskTicket savedTicket = service.createTicket(ticketRequest, username);
         LOGGER.info("Ticker created successfully. Ticket ID: {}, Username: {}", savedTicket.getId(), username);
-        return "Ticker #" + savedTicket.getId() + " created successfully for user " + savedTicket.getUsername();
+        return "Ticket #" + savedTicket.getId() + " created successfully for user " + savedTicket.getUsername();
     }
 
     @Tool(description = "fetch the status of the tickets based on a given username")
