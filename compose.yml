@@ -8,3 +8,17 @@ services:
 #    image: redis:latest
 #    ports:
 #      - '6379:6379'
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - "./prometheus-config.yml:/etc/prometheus/prometheus.yml"
+    networks:
+      - spring-ai
+    ports:
+      - 9090:9090
+
+
+networks:
+  spring-ai:
+    driver: bridge
