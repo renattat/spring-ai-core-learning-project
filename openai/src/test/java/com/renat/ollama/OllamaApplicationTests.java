@@ -8,6 +8,7 @@ import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -43,6 +45,9 @@ class OllamaApplicationTests {
 
     @Value("classpath:/promptTemplate/factcheck.st")
     Resource factCheckTemplate;
+
+    @Value("classpath:/promptTemplate/hrPolicy.st")
+    Resource hrPolicyTemplate;
 
 
     @BeforeEach
@@ -117,7 +122,7 @@ class OllamaApplicationTests {
 
     @Test
     @DisplayName("Should return correct response fpr gravity-related question")
-    @Timeout(value = 300)
+    @Timeout(value = 30)
     void evaluateFactAccuracyForGravityQuestion() {
         // Given
         String question = "Who discovered the law of universal gravitation?";
@@ -139,6 +144,39 @@ class OllamaApplicationTests {
                                 Context: %s
                                 ================
                                 """, question, aiResponse, "")
+                        .isTrue());
+    }
+
+    @Test
+    @DisplayName("Should correctly evaluate factual response based on HR policy context(RAG scenario)")
+    @Timeout(value = 30)
+    void evaluateHrPolicyAnswerWithRagContext() throws IOException {
+        // Given
+        String question = "How many paid leaves do employees get annually?";
+
+        //When
+        String aiResponse = chatController.promptStuffing(question);
+        String retrievedContext = hrPolicyTemplate.getContentAsString(Charset.defaultCharset());
+
+        //Then
+        EvaluationRequest evaluationRequest = new EvaluationRequest(
+                question,
+                List.of(new Document(retrievedContext)),
+                aiResponse);
+        EvaluationResponse response = factCheckingEvaluator.evaluate(evaluationRequest);
+
+        // Then
+        Assertions.assertAll(
+                () -> assertThat(aiResponse).isNotBlank(),
+                () -> assertThat(response.isPass())
+                        .withFailMessage("""
+                        ========================================
+                        The response was not considered factually accurate.
+                        Question: %s
+                        Response: %s
+                        Context: %s
+                        ========================================
+                        """, question, aiResponse, retrievedContext)
                         .isTrue());
     }
 }

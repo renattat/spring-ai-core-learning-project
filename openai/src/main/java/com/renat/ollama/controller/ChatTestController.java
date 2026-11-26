@@ -15,7 +15,7 @@ public class ChatTestController {
 
     private final ChatClient chatClient;
 
-    @Value("classpath:/promptTemplates/hrPolicy.st")
+    @Value("classpath:/promptTemplate/hrPolicy.st")
     Resource hrPolicyTemplate;
 
     public ChatTestController(ChatClient.Builder chatClientBuilder) {
