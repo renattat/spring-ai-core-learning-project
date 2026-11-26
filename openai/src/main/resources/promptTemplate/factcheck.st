@@ -5,7 +5,7 @@ Instructions:
 2. If the document partially supports the claim, use your own general knowledge to verify the remaining information.
 3. If the document contradicts any part of the claim, respond with "no".
 4. If no document is provided, rely entirely on your own general knowledge.
-5. Respond only with "yes" or "no". Do not provide explanations.
+5. Respond only with "yes" or "no". Do not provide explanations. Do not add any punctuation, periods, or extra text.
 
 Document:
 {document}
