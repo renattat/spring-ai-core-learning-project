@@ -4,8 +4,10 @@ import com.renat.ollama.controller.ChatTestController;
 import org.junit.jupiter.api.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.evaluation.FactCheckingEvaluator;
 import org.springframework.ai.chat.evaluation.RelevancyEvaluator;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,28 @@ class OllamaApplicationTests {
         ChatClient.Builder chatClientBuilder = ChatClient.builder(chatModel)
                 .defaultAdvisors(new SimpleLoggerAdvisor());
         this.chatClient = chatClientBuilder.build();
-        this.relevancyEvaluator = new RelevancyEvaluator(chatClientBuilder);
+        // Кастомный промпт, который ЗАПРЕЩАЕТ модели ставить точку или добавлять слова
+        PromptTemplate evaluatorPrompt = new PromptTemplate("""
+            Your task is to evaluate if the response for the query is correct.
+            You must answer with EXACTLY the word YES or NO. 
+            Do not add any punctuation, periods, or extra text.
+            
+            Query:
+            {query}
+            
+            Response:
+            {response}
+            
+            Context:
+            {context}
+            
+            Answer:
+            """);
+
+        this.relevancyEvaluator = RelevancyEvaluator.builder()
+                .chatClientBuilder(chatClientBuilder)
+                .promptTemplate(evaluatorPrompt)
+                .build();
     }
 
     @Test
@@ -79,5 +102,4 @@ class OllamaApplicationTests {
                         )
                         .isGreaterThan(minRelevancyScore));
     }
-
 }
